@@ -1,234 +1,276 @@
 #pragma once
-#include "node.h"
+#include <list>
 #include <deque>
+#include <memory>
 #include <iostream>
 
 /* Tree Class Declaration */
-namespace jameslibrary
-{
-	template <class T>
-	class Tree
-	{
-	public:
-		Tree()						// Default Constructor
-			: T_objects(), root(nullptr) {}
-		Tree(T const & r)			// Constructor
-			: T_objects(1, r)
-		{
-			root = new Node(0);
-		}
-		Tree(Tree<T> const & t);	// Copy constructor
-		virtual Tree<T> const &		// Copy assignment
-			operator=(Tree<T> const &);
-		virtual ~Tree();			// Destructor
+namespace jameslibrary {
+namespace detail {
 
-		inline void clear();				// Clears tree
+/* Node Class Declaration */
+class Node {
+public:
+    Node();
+    Node(int);
+    Node(Node const&);
+    ~Node();
 
-		Node* findNode(T const &) const;	// Finds first Node
-											// matching data
+    Node const& operator=(Node const&);
+    bool operator==(Node const&) const;
+    bool operator!=(Node const&) const;
 
-		void addNode(T const &, T const &); // Add node given new
-											// data and parent data
+    auto findPos(Node const&) const;
 
-		inline bool empty() const;			// Returns whether tree
-											// is empty
+    void changeParent(Node&);
+    void addChild(Node&);
+    void removeChild(Node&);
+    void clearChildList();
 
-		inline void printTree() const;		// Prints Tree
+    int getIndex() const;
+    Node* getParent() const;
+    std::list<Node*> const& getChildList() const;
 
-	private:
-		// Helper functions
-		void copy(Node*);
-		Node* findNode(T const &, Node *) const;
-		void printTree(Node const *) const;
-			
-		std::deque<T> T_objects;
-		Node* root;
-	};
+private:
+    int idx;
+    Node* parent;
+    std::list<Node*> childList;
+};
+
+}  // end of detail
+
+template <class T>
+class Tree {
+public:
+    Tree()                      // Default Constructor
+        : T_objects(), root(nullptr) {}
+    Tree(T const& r)            // Constructor
+        : T_objects(1, r)
+    {
+        root = std::unique_ptr<Node>(new Node(0));
+    }
+    Tree(Tree<T> const& t);     // Copy constructor
+    virtual Tree<T> const&      // Copy assignment
+    operator=(Tree<T> const&);
+    virtual ~Tree();            // Destructor
+
+    inline void clear();                // Clears tree
+
+
+    void addNode(T const&, T const&);   // Add node given new data and parent data
+
+    inline bool empty() const;          // Returns whether tree is empty
+
+    inline void printTree() const;      // Prints Tree
+
+private:
+    using Node = detail::Node;
+
+
+    // Helper functions
+    void copy(Node*);
+    Node* findNode(T const&, Node*) const;
+    Node* findNode(T const&) const;     // Finds first Node
+    // matching data
+    void printTree(Node const*) const;
+
+    std::deque<T> T_objects;
+    std::unique_ptr<Node> root;
+};
 }
+
+
 
 /* Tree Class Definition */
-namespace jameslibrary
+namespace jameslibrary {
+/* Deep Copy from another Tree */
+template <class T>
+void Tree<T>::copy(Node* r)
 {
-	/* Deep Copy from another Tree */
-	template <class T>
-	void Tree<T>::copy(Node* r)
-	{
-		auto childList = (*r).getChildList();
-		(*r).clearChildList();
-		for (auto it = childList.begin();
-			it != childList.end(); ++it)
-		{
-			T child_data = T_objects[(**it).getIndex()];
-			T parent_data = T_objects[(*r).getIndex()];
-			addNode(child_data, parent_data);	// SLOW but accurate
-												// because trees are
-												// all made like this
-		}
+    auto childList = (*r).getChildList();
+    (*r).clearChildList();
 
-		for (auto it = childList.begin();
-			it != childList.end(); ++it)
-		{
-			copy(*it);
-		}
-	}
+    for (auto it = childList.begin();
+         it != childList.end(); ++it) {
+        T child_data = T_objects[(**it).getIndex()];
+        T parent_data = T_objects[(*r).getIndex()];
+        addNode(child_data, parent_data);   // SLOW but accurate
+        // because trees are
+        // all made like this
+    }
 
-	/* Copy Constructor */
-	template <class T>
-	Tree<T>::Tree(Tree<T> const & t)
-		: T_objects(t.T_objects)
-	{
-		if (t.empty())
-			root = nullptr;
-		root = new Node(*t.root);
-		copy(root);
-	}
+    for (auto it = childList.begin();
+         it != childList.end(); ++it) {
+        copy(*it);
+    }
+}
 
-	/* Copy assignment */
-	template <class T>
-	Tree<T> const & Tree<T>::operator=(Tree<T> const & t)
-	{
-		// Copy only if not self-assignment
-		if (this != &t)
-		{
-			clear();					// deallocate current tree
-			T_objects = t.T_objects;
-			root = new Node(*t.root);	// reallocate for new tree
-			copy(root);
-		}
-		return *this;
-	}
+/* Copy Constructor */
+template <class T>
+Tree<T>::Tree(Tree<T> const& t)
+    : T_objects(t.T_objects)
+{
+    if (t.empty()) {
+        root = nullptr;
+    }
 
-	/* Clear Tree */
-	template <class T>
-	inline void Tree<T>::clear()
-	{
-		delete root;
-		root = nullptr;
-		T_objects.clear();
-	}
+    root = new Node(*t.root);
+    copy(root);
+}
 
-	/* Destructor */
-	template <class T>
-	Tree<T>::~Tree()
-	{
-		clear();
-	}
+/* Copy assignment */
+template <class T>
+Tree<T> const& Tree<T>::operator=(Tree<T> const& t)
+{
+    // Copy only if not self-assignment
+    if (this != &t) {
+        clear();                    // deallocate current tree
+        T_objects = t.T_objects;
+        root = new Node(*t.root);   // reallocate for new tree
+        copy(root);
+    }
 
-	/* Finds the first Node corresponding to T object x 
-	Returns pointer to found node.
-	If not found, return nullptr.	
-	*/
-	template <class T>
-	Node* Tree<T>::findNode(T const & x, Node* root_ptr) const
-	{
-		Node* foundNode = nullptr;
-		// Check if root_ptr is nullptr
-		if (root_ptr == nullptr)
-			return nullptr;
-		
-		// Check if root corresonds to x
-		int idx = (*root_ptr).getIndex();
-		if (T_objects[idx] == x)
-			return root_ptr;
+    return *this;
+}
 
-		// If not, recurse through every child
-		auto childList = (*root_ptr).getChildList();
-		for (auto it = childList.begin(); 
-			it != childList.end(); ++it)
-		{
-			foundNode = findNode(x, (*it));
-			// If node has been found,
-			if (foundNode != nullptr)
-				break;
-		}
+/* Clear Tree */
+template <class T>
+inline void Tree<T>::clear()
+{
+    delete root;
+    root = nullptr;
+    T_objects.clear();
+}
 
-		return foundNode;
-	}
+/* Destructor */
+template <class T>
+Tree<T>::~Tree()
+{
+    clear();
+}
 
-	template <class T>
-	Node* Tree<T>::findNode(T const & x) const
-	{
-		return findNode(x, root);
-	}
+/* Finds the first Node corresponding to T object x
+Returns pointer to found node.
+If not found, return nullptr.
+*/
+template <class T>
+typename Tree<T>::Node* Tree<T>::findNode(T const& x, Node* root_ptr) const
+{
+    Node* foundNode = nullptr;
 
-	/* Add New Node 
-	It does not matter if another node exists with data x.
-	Always new Node created.
-	*/
-	template <class T>
-	void Tree<T>::addNode(T const & x, // new data
-						  T const & p  // new parent
-							)
-	{
-		// Check if parent exists
-		Node* parent = findNode(p);
-		if (parent == nullptr)
-		{
-			// Throw exception
-			return;
-		}
+    // Check if root_ptr is nullptr
+    if (root_ptr == nullptr) {
+        return nullptr;
+    }
 
-		// Add x to the deque of objects
-		T_objects.push_back(x);
-		int idx = T_objects.size() - 1; // index of x in T_objects
-										// Careful with multiprocess	
-		Node* newNode = new Node(idx);
+    // Check if root corresonds to x
+    int idx = (*root_ptr).getIndex();
 
-		// Add *parent to newNode
-		(*newNode).changeParent(*parent);
+    if (T_objects[idx] == x) {
+        return root_ptr;
+    }
 
-		// Add newNode to *parent
-		(*parent).addChild(*newNode);
-	}
+    // If not, recurse through every child
+    auto childList = (*root_ptr).getChildList();
 
-	/* Is tree empty? */
-	template <class T>
-	inline bool Tree<T>::empty() const
-	{
-		return T_objects.empty();
-	}
+    for (auto it = childList.begin();
+         it != childList.end(); ++it) {
+        foundNode = findNode(x, (*it));
 
-	/* Print Tree */
-	template <class T>
-	void Tree<T>::printTree(Node const * r) const
-	{
-		if (r != nullptr)
-		{
-			std::cout << "Data: " << T_objects[(*r).getIndex()] 
-				<< std::endl;
+        // If node has been found,
+        if (foundNode != nullptr) {
+            break;
+        }
+    }
 
-			std::cout << "Parent: ";
-			if ((*r).getParent() != nullptr)
-			{
-				Node* par = (*r).getParent();
-				std::cout << T_objects[(*par).getIndex()];
-			}
-			std::cout << std::endl;
+    return foundNode;
+}
 
-			std::cout << "Children:";
-			auto childList = (*r).getChildList();
-			for (auto x : childList)
-			{
-				std::cout << T_objects[(*x).getIndex()] << ", ";
-			}
-			std::cout << '\n' << std::endl;
+template <class T>
+typename Tree<T>::Node* Tree<T>::findNode(T const& x) const
+{
+    return findNode(x, root);
+}
 
-			// Recurse through each child
-			for (auto it = childList.begin();
-				it != childList.end(); ++it)
-			{
-				printTree(*it);
-			}
-			std::cout << std::endl;
-		}
-	}
+/* Add New Node
+It does not matter if another node exists with data x.
+Always new Node created.
+*/
+template <class T>
+void Tree<T>::addNode(T const& x,  // new data
+                      T const& p   // new parent
+                     )
+{
+    // Check if parent exists
+    Node* parent = findNode(p);
 
-	/* Print Tree */
-	template <class T>
-	inline void Tree<T>::printTree() const	
-	{
-		printTree(root);
-	}
+    if (parent == nullptr) {
+        // Throw exception
+        return;
+    }
+
+    // Add x to the deque of objects
+    T_objects.push_back(x);
+    int idx = T_objects.size() - 1; // index of x in T_objects
+    // Careful with multiprocess
+    Node* newNode = new Node(idx);
+    // Add *parent to newNode
+    (*newNode).changeParent(*parent);
+    // Add newNode to *parent
+    (*parent).addChild(*newNode);
+}
+
+/* Is tree empty? */
+template <class T>
+inline bool Tree<T>::empty() const
+{
+    return T_objects.empty();
+}
+
+/* Print Tree */
+template <class T>
+void Tree<T>::printTree(Node const* r) const
+{
+    if (r != nullptr) {
+        std::cout << "Data: " << T_objects[(*r).getIndex()]
+                  << std::endl;
+        std::cout << "Parent: ";
+
+        if ((*r).getParent() != nullptr) {
+            Node* par = (*r).getParent();
+            std::cout << T_objects[(*par).getIndex()];
+        }
+
+        std::cout << std::endl;
+        std::cout << "Children:";
+        auto childList = (*r).getChildList();
+
+        for (auto x : childList) {
+            std::cout << T_objects[(*x).getIndex()] << ", ";
+        }
+
+        std::cout << '\n' << std::endl;
+
+        // Recurse through each child
+        for (auto it = childList.begin();
+             it != childList.end(); ++it) {
+            printTree(*it);
+        }
+
+        std::cout << std::endl;
+    }
+}
+
+/* Print Tree */
+template <class T>
+inline void Tree<T>::printTree() const
+{
+    printTree(root);
+}
 
 }
+
+/* Tree Test Functions */
+void test_tree();
+
 
