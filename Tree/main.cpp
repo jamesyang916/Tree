@@ -1,27 +1,9 @@
 #include "tree.h"
-#include <iostream>
-
-template <class T>
-class Trial
-{
-public:
-	Trial(T const & t)
-		:  data(t) {}
-	inline T getData() const;
-private:
-	T data;
-};
-
-template <class T>
-inline T Trial<T>::getData() const
-{
-	return data;
-}
 
 
 using namespace jameslibrary;
 
-void test()
+int main()
 {
 	Tree<int>* T = new Tree<int>(0);
 
@@ -38,13 +20,8 @@ void test()
 	T2 = *T;
 
 	T2.printTree();
-}
-int main()
-{
-	Tree<int> T1(0);
-	Tree<int> T2(1);
 
-	test();
+	delete T;
 
 	int tmp;
 	std::cin >> tmp;
