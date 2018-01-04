@@ -1,44 +1,8 @@
 ﻿  testtree.cpp
-c:\james\c++\tree\tree\tree.h(129): error C2679: binary '=': no operator found which takes a right-hand operand of type 'jameslibrary::Tree<int>::Node *' (or there is no acceptable conversion)
-  c:\program files (x86)\microsoft visual studio 14.0\vc\include\memory(1436): note: could be 'std::unique_ptr<jameslibrary::Tree<T>::Node,std::default_delete<_Ty>> &std::unique_ptr<_Ty,std::default_delete<_Ty>>::operator =(const std::unique_ptr<_Ty,std::default_delete<_Ty>> &)'
-          with
-          [
-              _Ty=jameslibrary::Tree<T>::Node
-          ]
-  c:\program files (x86)\microsoft visual studio 14.0\vc\include\memory(1377): note: or       'std::unique_ptr<jameslibrary::Tree<T>::Node,std::default_delete<_Ty>> &std::unique_ptr<_Ty,std::default_delete<_Ty>>::operator =(std::unique_ptr<_Ty,std::default_delete<_Ty>> &&) noexcept'
-          with
-          [
-              _Ty=jameslibrary::Tree<T>::Node
-          ]
-  c:\program files (x86)\microsoft visual studio 14.0\vc\include\memory(1303): note: or       'std::unique_ptr<jameslibrary::Tree<T>::Node,std::default_delete<_Ty>> &std::unique_ptr<_Ty,std::default_delete<_Ty>>::operator =(std::nullptr_t) noexcept'
-          with
-          [
-              _Ty=jameslibrary::Tree<T>::Node
-          ]
-  c:\james\c++\tree\tree\tree.h(129): note: while trying to match the argument list '(std::unique_ptr<jameslibrary::Tree<T>::Node,std::default_delete<_Ty>>, jameslibrary::Tree<int>::Node *)'
-          with
-          [
-              _Ty=jameslibrary::Tree<T>::Node
-          ]
-  c:\james\c++\tree\tree\tree.h(124): note: while compiling class template member function 'const jameslibrary::Tree<int> &jameslibrary::Tree<int>::operator =(const jameslibrary::Tree<int> &)'
-  c:\james\c++\tree\tree\testtree.cpp(14): note: see reference to function template instantiation 'const jameslibrary::Tree<int> &jameslibrary::Tree<int>::operator =(const jameslibrary::Tree<int> &)' being compiled
-  c:\james\c++\tree\tree\testtree.cpp(6): note: see reference to class template instantiation 'jameslibrary::Tree<int>' being compiled
-c:\james\c++\tree\tree\tree.h(130): error C2664: 'void jameslibrary::Tree<int>::copy(jameslibrary::Tree<int>::Node *)': cannot convert argument 1 from 'std::unique_ptr<jameslibrary::Tree<T>::Node,std::default_delete<_Ty>>' to 'jameslibrary::Tree<int>::Node *'
-          with
-          [
-              _Ty=jameslibrary::Tree<T>::Node
-          ]
-  c:\james\c++\tree\tree\tree.h(130): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
-c:\james\c++\tree\tree\tree.h(268): error C2664: 'void jameslibrary::Tree<int>::printTree(const jameslibrary::Tree<int>::Node *) const': cannot convert argument 1 from 'const std::unique_ptr<jameslibrary::Tree<T>::Node,std::default_delete<_Ty>>' to 'const jameslibrary::Tree<int>::Node *'
-          with
-          [
-              _Ty=jameslibrary::Tree<T>::Node
-          ]
-  c:\james\c++\tree\tree\tree.h(268): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
-  c:\james\c++\tree\tree\tree.h(267): note: while compiling class template member function 'void jameslibrary::Tree<int>::printTree(void) const'
-  c:\james\c++\tree\tree\testtree.cpp(11): note: see reference to function template instantiation 'void jameslibrary::Tree<int>::printTree(void) const' being compiled
-  main.cpp
   Generating Code...
   Compiling...
   node.cpp
+  main.cpp
   Generating Code...
+  Tree.vcxproj -> C:\James\C++\Tree\Debug\Tree.exe
+  Tree.vcxproj -> C:\James\C++\Tree\Debug\Tree.pdb (Full PDB)

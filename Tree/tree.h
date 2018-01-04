@@ -111,11 +111,11 @@ Tree<T>::Tree(Tree<T> const& t)
     : T_objects(t.T_objects)
 {
     if (t.empty()) {
-        root = nullptr;
+        root = std::unique_ptr<Node>(nullptr);
     }
 
-    root = new Node(*t.root);
-    copy(root);
+    root = std::unique_ptr<Node>(new Node(*t.root));
+    copy(root.get());
 }
 
 /* Copy assignment */
@@ -126,8 +126,8 @@ Tree<T> const& Tree<T>::operator=(Tree<T> const& t)
     if (this != &t) {
         clear();                    // deallocate current tree
         T_objects = t.T_objects;
-        root = new Node(*t.root);   // reallocate for new tree
-        copy(root);
+        root = std::unique_ptr<Node>(new Node(*t.root));   // reallocate for new tree
+        copy(root.get());
     }
 
     return *this;
@@ -137,8 +137,7 @@ Tree<T> const& Tree<T>::operator=(Tree<T> const& t)
 template <class T>
 inline void Tree<T>::clear()
 {
-    delete root;
-    root = nullptr;
+    root.reset(nullptr);
     T_objects.clear();
 }
 
@@ -189,7 +188,7 @@ typename Tree<T>::Node* Tree<T>::findNode(T const& x, Node* root_ptr) const
 template <class T>
 typename Tree<T>::Node* Tree<T>::findNode(T const& x) const
 {
-    return findNode(x, root);
+    return findNode(x, root.get());
 }
 
 /* Add New Node
@@ -265,7 +264,7 @@ void Tree<T>::printTree(Node const* r) const
 template <class T>
 inline void Tree<T>::printTree() const
 {
-    printTree(root);
+    printTree(root.get());
 }
 
 }
