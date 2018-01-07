@@ -1,8 +1,7 @@
-﻿  testtree.cpp
-  Generating Code...
-  Compiling...
-  node.cpp
-  main.cpp
-  Generating Code...
+﻿  main.cpp
+c:\james\c++\tree\tree\factorial.h(5): warning C4307: '*': integral constant overflow
+  c:\james\c++\tree\tree\factorial.h(5): note: see reference to class template instantiation 'Factorial<13>' being compiled
+  c:\james\c++\tree\tree\factorial.h(5): note: see reference to class template instantiation 'Factorial<14>' being compiled
+  c:\james\c++\tree\tree\main.cpp(11): note: see reference to class template instantiation 'Factorial<15>' being compiled
   Tree.vcxproj -> C:\James\C++\Tree\Debug\Tree.exe
   Tree.vcxproj -> C:\James\C++\Tree\Debug\Tree.pdb (Full PDB)
