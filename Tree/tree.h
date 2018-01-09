@@ -37,9 +37,12 @@ private:
     std::list<Node*> childList;
 };
 
+class binaryNode {
+};
+
 }  // end of detail
 
-template <class T>
+template <class T, class T_Node>
 class Tree {
 public:
     Tree()                      // Default Constructor
@@ -47,12 +50,12 @@ public:
     Tree(T const& r)            // Constructor
         : T_objects(1, r)
     {
-        root = std::unique_ptr<Node>(new Node(0));
+        root = std::unique_ptr<T_Node>(new T_Node(0));
     }
-    Tree(Tree<T> const& t);     // Copy constructor
-    virtual Tree<T> const&      // Copy assignment
-    operator=(Tree<T> const&);
-    virtual ~Tree();            // Destructor
+    Tree(Tree<T, T_Node> const& t);     // Copy constructor
+    Tree<T, T_Node> const&      // Copy assignment
+    operator=(Tree<T, T_Node> const&);
+    ~Tree();            // Destructor
 
     inline void clear();                // Clears tree
 
@@ -64,18 +67,50 @@ public:
     inline void printTree() const;      // Prints Tree
 
 private:
-    using Node = detail::Node;
-
-
     // Helper functions
-    void copy(Node*);
-    Node* findNode(T const&, Node*) const;
-    Node* findNode(T const&) const;     // Finds first Node
+    void copy(T_Node*);
+    T_Node* findNode(T const&, T_Node*) const;
+    T_Node* findNode(T const&) const;     // Finds first Node
     // matching data
-    void printTree(Node const*) const;
+    void printTree(T_Node const*) const;
 
     std::deque<T> T_objects;
-    std::unique_ptr<Node> root;
+    std::unique_ptr<T_Node> root;
+};
+}
+
+/* Binary Tree Specialization Declaration */
+namespace jameslibrary {
+using binaryNode = detail::binaryNode;
+template <class T>
+class Tree<T, binaryNode> {
+public:
+    Tree()                      // Default Constructor
+        : T_objects(1) {}
+    Tree(T const& r)            // Constructor
+        : T_objects(1, r) {}
+    Tree(Tree<T, binaryNode> const& t);     // Copy constructor
+    Tree<T, binaryNode> const&      // Copy assignment
+    operator=(Tree<T, binaryNode> const&);
+
+    inline void clear();                // Clears tree
+
+
+    void addNode(T const&, T const&);   // Add node given new data and parent data
+
+    inline bool empty() const;          // Returns whether tree is empty
+
+    inline void printTree() const;      // Prints Tree
+
+private:
+    // Helper functions
+    void copy(binaryNode*);
+    binaryNode* findNode(T const&, binaryNode*) const;
+    binaryNode* findNode(T const&) const;     // Finds first Node
+    // matching data
+    void printTree(binaryNode const*) const;
+
+    std::deque<T> T_objects;
 };
 }
 
@@ -84,8 +119,8 @@ private:
 /* Tree Class Definition */
 namespace jameslibrary {
 /* Deep Copy from another Tree */
-template <class T>
-void Tree<T>::copy(Node* r)
+template <class T, class T_Node>
+void Tree<T, T_Node>::copy(T_Node* r)
 {
     auto childList = (*r).getChildList();
     (*r).clearChildList();
@@ -106,27 +141,27 @@ void Tree<T>::copy(Node* r)
 }
 
 /* Copy Constructor */
-template <class T>
-Tree<T>::Tree(Tree<T> const& t)
+template <class T, class T_Node>
+Tree<T, T_Node>::Tree(Tree<T, T_Node> const& t)
     : T_objects(t.T_objects)
 {
     if (t.empty()) {
-        root = std::unique_ptr<Node>(nullptr);
+        root = std::unique_ptr<T_Node>(nullptr);
     }
 
-    root = std::unique_ptr<Node>(new Node(*t.root));
+    root = std::unique_ptr<T_Node>(new T_Node(*t.root));
     copy(root.get());
 }
 
 /* Copy assignment */
-template <class T>
-Tree<T> const& Tree<T>::operator=(Tree<T> const& t)
+template <class T, class T_Node>
+Tree<T, T_Node> const& Tree<T, T_Node>::operator=(Tree<T, T_Node> const& t)
 {
     // Copy only if not self-assignment
     if (this != &t) {
         clear();                    // deallocate current tree
         T_objects = t.T_objects;
-        root = std::unique_ptr<Node>(new Node(*t.root));   // reallocate for new tree
+        root = std::unique_ptr<T_Node>(new T_Node(*t.root));   // reallocate for new tree
         copy(root.get());
     }
 
@@ -134,16 +169,16 @@ Tree<T> const& Tree<T>::operator=(Tree<T> const& t)
 }
 
 /* Clear Tree */
-template <class T>
-inline void Tree<T>::clear()
+template <class T, class T_Node>
+inline void Tree<T, T_Node>::clear()
 {
     root.reset(nullptr);
     T_objects.clear();
 }
 
 /* Destructor */
-template <class T>
-Tree<T>::~Tree()
+template <class T, class T_Node>
+Tree<T, T_Node>::~Tree()
 {
     clear();
 }
@@ -152,10 +187,10 @@ Tree<T>::~Tree()
 Returns pointer to found node.
 If not found, return nullptr.
 */
-template <class T>
-typename Tree<T>::Node* Tree<T>::findNode(T const& x, Node* root_ptr) const
+template <class T, class T_Node>
+typename T_Node* Tree<T, T_Node>::findNode(T const& x, T_Node* root_ptr) const
 {
-    Node* foundNode = nullptr;
+    T_Node* foundNode = nullptr;
 
     // Check if root_ptr is nullptr
     if (root_ptr == nullptr) {
@@ -185,8 +220,8 @@ typename Tree<T>::Node* Tree<T>::findNode(T const& x, Node* root_ptr) const
     return foundNode;
 }
 
-template <class T>
-typename Tree<T>::Node* Tree<T>::findNode(T const& x) const
+template <class T, class T_Node>
+typename T_Node* Tree<T, T_Node>::findNode(T const& x) const
 {
     return findNode(x, root.get());
 }
@@ -195,13 +230,13 @@ typename Tree<T>::Node* Tree<T>::findNode(T const& x) const
 It does not matter if another node exists with data x.
 Always new Node created.
 */
-template <class T>
-void Tree<T>::addNode(T const& x,  // new data
-                      T const& p   // new parent
-                     )
+template <class T, class T_Node>
+void Tree<T, T_Node>::addNode(T const& x,  // new data
+                              T const& p   // new parent
+                             )
 {
     // Check if parent exists
-    Node* parent = findNode(p);
+    T_Node* parent = findNode(p);
 
     if (parent == nullptr) {
         // Throw exception
@@ -212,7 +247,7 @@ void Tree<T>::addNode(T const& x,  // new data
     T_objects.push_back(x);
     int idx = T_objects.size() - 1; // index of x in T_objects
     // Careful with multiprocess
-    Node* newNode = new Node(idx);
+    T_Node* newNode = new T_Node(idx);
     // Add *parent to newNode
     (*newNode).changeParent(*parent);
     // Add newNode to *parent
@@ -220,15 +255,15 @@ void Tree<T>::addNode(T const& x,  // new data
 }
 
 /* Is tree empty? */
-template <class T>
-inline bool Tree<T>::empty() const
+template <class T, class T_Node>
+inline bool Tree<T, T_Node>::empty() const
 {
     return T_objects.empty();
 }
 
 /* Print Tree */
-template <class T>
-void Tree<T>::printTree(Node const* r) const
+template <class T, class T_Node>
+void Tree<T, T_Node>::printTree(T_Node const* r) const
 {
     if (r != nullptr) {
         std::cout << "Data: " << T_objects[(*r).getIndex()]
@@ -236,7 +271,7 @@ void Tree<T>::printTree(Node const* r) const
         std::cout << "Parent: ";
 
         if ((*r).getParent() != nullptr) {
-            Node* par = (*r).getParent();
+            T_Node* par = (*r).getParent();
             std::cout << T_objects[(*par).getIndex()];
         }
 
@@ -261,14 +296,49 @@ void Tree<T>::printTree(Node const* r) const
 }
 
 /* Print Tree */
-template <class T>
-inline void Tree<T>::printTree() const
+template <class T, class T_Node>
+inline void Tree<T, T_Node>::printTree() const
 {
     printTree(root.get());
 }
 
 }
 
+/* Binary Tree Definition */
+namespace jameslibrary {
+// Copy Constructor
+template <class T>
+Tree<T, binaryNode>::Tree(Tree<T, binaryNode> const& t)
+    : T_objects(t.T_objects) {}
+
+// Copy Assignment
+template <class T>
+Tree<T, binaryNode> const&
+Tree<T, binaryNode>::operator=(Tree<T, binaryNode> const& t)
+{
+    if (this != &t) {
+        T_objects = t.T_objects;
+    }
+
+    return *this;
+}
+
+// Clear Tree
+template <class T>
+void Tree<T, binaryNode>::clear()
+{
+    T_objects.clear();
+}
+
+// Is Empty?
+template <class T>
+bool Tree<T, binaryNode>::empty() const
+{
+    return T_objects.empty();
+}
+
+
+}
 /* Tree Test Functions */
 void test_tree();
 
