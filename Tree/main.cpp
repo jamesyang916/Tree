@@ -2,7 +2,7 @@
 
 using namespace jameslibrary;
 
-int main(int argc, char** argv)
+int main()
 {
     test_tree();
     int end;
